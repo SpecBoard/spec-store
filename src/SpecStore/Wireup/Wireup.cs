@@ -1,4 +1,5 @@
 ﻿using LightInject;
+using STrain.CQS.NetCore;
 
 namespace SpecStore.Wireup
 {
@@ -12,6 +13,11 @@ namespace SpecStore.Wireup
 		public static void ConfigureContainer(this IServiceRegistry registry)
 		{
 
+		}
+
+		public static void ConfigureSTrain(this WebApplicationBuilder builder)
+		{
+			builder.AddCQS(builder => builder.AddMvcRequestReceiver());
 		}
 	}
 }

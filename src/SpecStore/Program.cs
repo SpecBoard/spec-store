@@ -9,8 +9,10 @@ builder.Services.AddControllers();
 
 builder.Host.UseLightInject();
 
-Wireup.ConfigureServices(builder.Services, builder.Configuration);
-builder.Host.ConfigureContainer<IServiceRegistry>(Wireup.ConfigureContainer);
+builder.Services.ConfigureServices(builder.Configuration);
+builder.Host.ConfigureContainer<IServiceRegistry>(registry => registry.ConfigureContainer());
+
+builder.ConfigureSTrain();
 
 var app = builder.Build();
 

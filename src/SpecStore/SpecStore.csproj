@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <PackageReference Include="LightInject.Microsoft.Hosting" Version="2.1.0" />
+    <PackageReference Include="STrain.CQS.NetCore.LigtInject" Version="2.0.0-rc.2" />
   </ItemGroup>
 
 </Project>

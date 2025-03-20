@@ -6,4 +6,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="STrain.CQS.Api" Version="2.0.0-rc.2" />
+  </ItemGroup>
+
 </Project>
