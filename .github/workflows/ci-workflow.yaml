@@ -1,0 +1,56 @@
+name: CI Workflow
+run-name: 'PR: #${{ github.event.pull_request.number }} - ${{ github.event.pull_request.title }}'
+
+on:
+  pull_request:
+    branches: [develop]
+
+jobs:
+  restore-dependencies:
+    runs-on: ubuntu-latest
+
+    outputs:
+      cache_key: ${{ steps.execute.outputs.cache_key }}
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Execute
+        id: execute
+        uses: mihben/actions-repository/.github/actions/dotnet/restore-dependencies@main
+        with:
+          working-directory: src
+          packages-directory: ${{ github.workspace }}
+
+  build:
+    needs: [restore-dependencies]
+    runs-on: ubuntu-latest
+
+    outputs:
+      artifact_name: ${{ steps.execute.outputs.artifact_name }}
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Execute
+        id: execute
+        uses: mihben/actions-repository/.github/actions/dotnet/build@main
+        with:
+          working-directory: src
+          cache_key: ${{ needs.restore-dependencies.outputs.cache_key }}
+          packages-directory: ${{ github.workspace }}
+
+  test:
+    needs: [restore-dependencies, build]
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Execute
+        uses: mihben/actions-repository/.github/actions/dotnet/test@main
+        with:
+          artifact_name: ${{ needs.build.outputs.artifact_name }}
