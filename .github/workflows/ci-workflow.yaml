@@ -13,6 +13,11 @@ jobs:
       cache_key: ${{ steps.execute.outputs.cache_key }}
 
     steps:
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.x.x'
+
       - name: Checkout Code
         uses: actions/checkout@v4
 
@@ -31,6 +36,11 @@ jobs:
       artifact_name: ${{ steps.execute.outputs.artifact_name }}
 
     steps:
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.x.x'
+
       - name: Checkout Code
         uses: actions/checkout@v4
 
@@ -47,6 +57,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.x.x'
+
       - name: Checkout code
         uses: actions/checkout@v4
 
