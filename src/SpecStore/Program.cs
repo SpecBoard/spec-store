@@ -24,4 +24,6 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-app.Run();
+await app.InitializeAsync();
+
+await app.RunAsync();

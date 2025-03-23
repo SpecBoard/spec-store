@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="FluentValidation" Version="11.11.0" />
     <PackageReference Include="STrain.CQS.Api" Version="2.0.0-rc.2" />
   </ItemGroup>
 
