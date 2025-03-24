@@ -1,6 +1,7 @@
 using LightInject;
 using Serilog;
 using SpecStore.Wireup;
+using STrain.CQS.NetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,6 +24,7 @@ var app = builder.Build();
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapGenericRequestController();
 
 await app.InitializeAsync();
 
