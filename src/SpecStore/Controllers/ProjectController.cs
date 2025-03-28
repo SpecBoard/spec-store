@@ -22,9 +22,14 @@ namespace SpecStore.Controllers
 		}
 
 		[HttpPost("{key}")]
-		public async Task UploadReportAsync(string key, CancellationToken cancellationToken)
+		public async Task UploadReportAsync(string key, UploadReportBody body, CancellationToken cancellationToken)
 		{
-			await _requestReceiver.ReceiveCommandAsync(new UploadReportCommand { Project = key }, cancellationToken);
+			await _requestReceiver.ReceiveCommandAsync(new UploadReportCommand { Project = key, Version = body.Version }, cancellationToken);
 		}
+	}
+
+	public record UploadReportBody
+	{
+		public required string Version { get; init; }
 	}
 }

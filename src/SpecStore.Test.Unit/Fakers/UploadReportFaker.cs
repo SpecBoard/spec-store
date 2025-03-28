@@ -10,5 +10,12 @@ namespace SpecStore.Test.Unit.Fakers
 
 			return this;
 		}
+
+		public UploadReportFaker Version(string? version)
+		{
+			RuleFor(c => c.Version, version);
+
+			return this;
+		}
 	}
 }

@@ -36,11 +36,13 @@ namespace SpecStore.Application.Performers
 
 			await using var transaction = await _context.Database.BeginTransactionAsync(cancellationToken);
 
-			var project = await _context.Projects.FindAsync([command.Project], cancellationToken: cancellationToken);
+			var project = await _context.Projects.Include(p => p.Versions).FirstOrDefaultAsync(p => p.Key == command.Project, cancellationToken: cancellationToken);
 			if (project is null)
 			{
-				await _context.Projects.AddAsync(new ProjectEntity { Key = command.Project }, cancellationToken).ConfigureAwait(false);
+				project = new ProjectEntity { Key = command.Project };
+				await _context.Projects.AddAsync(project, cancellationToken).ConfigureAwait(false);
 			}
+			if (!project.Versions.Any(v => v.Version == command.Version)) await _context.Versions.AddAsync(new VersionEntity { Project = project, Version = command.Version });
 
 			await _context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 			await transaction.CommitAsync(cancellationToken).ConfigureAwait(false);
