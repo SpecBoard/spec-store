@@ -9,6 +9,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 
+builder.Services.AddHealthChecks();
+
 builder.Host.UseLightInject();
 builder.Host.UseSerilog((context, configuration) => configuration.ReadFrom.Configuration(context.Configuration));
 
@@ -21,10 +23,13 @@ var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 
+app.UseHealthChecks("/.well-known/healthy");
+
 app.UseAuthorization();
 
 app.MapControllers();
 app.MapGenericRequestController();
+
 
 await app.InitializeAsync();
 
