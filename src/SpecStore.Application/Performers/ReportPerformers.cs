@@ -22,12 +22,24 @@ namespace SpecStore.Application.Performers
 		{
 			_logger.LogDebug("Quering projects");
 
-			var projects = await _context.Projects.Include(p => p.Versions).OrderBy(p => p.Key).ToListAsync(cancellationToken);
+			var projects = await _context.Projects
+									.Include(p => p.Versions)
+										.ThenInclude(v => v.Reports)
+											.ThenInclude(r => r.Features)
+												.ThenInclude(f => f.Rules)
+													.ThenInclude(r => r.Scenarios)
+														.ThenInclude(s => s.Steps)
+									.Include(p => p.Versions)
+										.ThenInclude(v => v.Reports)
+											.ThenInclude(r => r.Features)
+												.ThenInclude(f => f.Scenarios)
+													.ThenInclude(s => s.Steps)
+									.OrderBy(p => p.Key).ToListAsync(cancellationToken);
 
 			_logger.LogTrace("Projects: {@Project}", projects);
 
 			_logger.LogInformation("Queried {ProjectCount} projects", projects.Count);
-			return projects.Select(p => new GetProjectsQuery.Result { Key = p.Key, Version = p.Versions.OrderBy(v => v.UploadedAt).Last().Version });
+			return projects.Select(p => p.AsResult()).ToList();
 		}
 
 		public async Task PerformAsync(UploadReportCommand command, CancellationToken cancellationToken)
@@ -36,7 +48,9 @@ namespace SpecStore.Application.Performers
 
 			await using var transaction = await _context.Database.BeginTransactionAsync(cancellationToken);
 
-			var project = await _context.Projects.Include(p => p.Versions).FirstOrDefaultAsync(p => p.Key == command.Project, cancellationToken: cancellationToken);
+			var project = await _context.Projects
+									.Include(p => p.Versions)
+									.FirstOrDefaultAsync(p => p.Key == command.Project, cancellationToken: cancellationToken);
 			if (project is null)
 			{
 				project = new ProjectEntity { Key = command.Project };
@@ -114,6 +128,22 @@ namespace SpecStore.Application.Performers
 				Type = s.Type,
 				Duration = s.Duration
 			})];
+		}
+
+		public static GetProjectsQuery.Result AsResult(this ProjectEntity project)
+		{
+			var version = project.Versions.OrderBy(v => v.UploadedAt).Last();
+			var report = version.Reports.OrderBy(r => r.UploadedAt).Last();
+
+			return new GetProjectsQuery.Result
+			{
+				Key = project.Key,
+				Version = version.Version,
+				LastReport = report.UploadedAt,
+				PassCount = report.Features.Sum(f => f.PassCount),
+				FailCount = report.Features.Sum(f => f.FailCount),
+				SkippedCount = report.Features.Sum(f => f.SkippedCount)
+			};
 		}
 	}
 }

@@ -21,7 +21,7 @@ namespace SpecStore.Test.Unit.Requests
 			var result = await sut.PerformAsync(new GetProjectsFaker().Generate(), default);
 
 			// Assert
-			Assert.Collection(await _database.GetProjectsAsync(), [.. projects.OrderBy(p => p.Key).Inspect()]);
+			Assert.Collection(result, [.. projects.Inspect()]);
 		}
 	}
 
@@ -44,17 +44,27 @@ namespace SpecStore.Test.Unit.Requests
 			await using var context = new ReportContext(database, new FakeClock());
 			var projects = await context.Projects.Include(p => p.Versions).ToListAsync();
 
-			return projects.ConvertAll(p => new GetProjectsQuery.Result { Key = p.Key, Version = p.Versions.OrderBy(v => v.UploadedAt).Last().Version });
+			return projects.ConvertAll(p => new GetProjectsQuery.Result
+			{
+				Key = p.Key,
+				Version = p.Versions.OrderBy(v => v.UploadedAt).Last().Version
+			});
 		}
 
 		public static IEnumerable<Action<GetProjectsQuery.Result>> Inspect(this IEnumerable<ProjectEntity> projects)
 		{
-			foreach (var project in projects)
+			foreach (var project in projects.OrderBy(p => p.Key))
 			{
 				yield return r =>
 				{
+					var version = project.Versions.OrderBy(v => v.UploadedAt).Last();
+					var report = version.Reports.OrderBy(r => r.UploadedAt).Last();
+
 					Assert.Equal(r.Key, project.Key);
-					Assert.Equal(r.Version, project.Versions.OrderBy(v => v.UploadedAt).Last().Version);
+					Assert.Equal(r.Version, version.Version);
+					Assert.Equal(r.LastReport, version.Reports.Max(r => r.UploadedAt));
+					Assert.Equal(r.PassCount, report.Features.Sum(f => f.PassCount));
+					Assert.Equal(r.FailCount, report.Features.Sum(f => f.FailCount));
 				};
 			}
 		}
