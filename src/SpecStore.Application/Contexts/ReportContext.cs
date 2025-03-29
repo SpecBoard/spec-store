@@ -8,65 +8,106 @@ using System.Runtime.CompilerServices;
 [assembly: InternalsVisibleTo("SpecStore.Test.Unit")]
 namespace SpecStore.Application.Contexts
 {
-	public class ReportContext(DbContextOptions<ReportContext> options, ISystemClock clock) : DbContext(options)
-	{
-		public DbSet<ProjectEntity> Projects { get; set; }
-		public DbSet<VersionEntity> Versions { get; set; }
+    public class ReportContext(DbContextOptions<ReportContext> options, ISystemClock clock) : DbContext(options)
+    {
+        public DbSet<ProjectEntity> Projects { get; set; }
+        public DbSet<VersionEntity> Versions { get; set; }
+        public DbSet<ReportEntity> Reports { get; set; }
+        public DbSet<MetadataEntity> Metadata { get; set; }
 
-		protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-		{
-			optionsBuilder.AddInterceptors(new TrackInterceptor(clock));
-		}
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            optionsBuilder.AddInterceptors(new TrackInterceptor(clock));
+        }
 
-		protected override void OnModelCreating(ModelBuilder modelBuilder)
-		{
-			base.OnModelCreating(modelBuilder);
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
 
-			modelBuilder.HasDefaultSchema("spec-store");
+            modelBuilder.HasDefaultSchema("spec-store");
 
-			modelBuilder.Entity<ProjectEntity>().Configure();
-			modelBuilder.Entity<VersionEntity>().Configure();
-		}
-	}
+            modelBuilder.Entity<ProjectEntity>().Configure();
+            modelBuilder.Entity<VersionEntity>().Configure();
+            modelBuilder.Entity<ReportEntity>().Configure();
+            modelBuilder.Entity<MetadataEntity>().Configure();
+        }
+    }
 
-	file static class ReportContextExtensions
-	{
-		public static void Configure(this EntityTypeBuilder<ProjectEntity> builder)
-		{
-			builder.ToTable("projects");
-			builder.HasKey(e => e.Key);
+    file static class ReportContextExtensions
+    {
+        public static void Configure(this EntityTypeBuilder<ProjectEntity> builder)
+        {
+            builder.ToTable("projects");
+            builder.HasKey(e => e.Key);
 
-			builder.Property(e => e.Key)
-				.HasColumnName("key")
-				.IsRequired();
+            builder.Property(e => e.Key)
+                .HasColumnName("key")
+                .IsRequired();
 
-			builder.Property(e => e.UploadedAt)
-				.HasColumnName("uploaded_at")
-				.IsRequired();
-		}
+            builder.Property(e => e.UploadedAt)
+                .HasColumnName("uploaded_at")
+                .IsRequired();
+        }
 
-		public static void Configure(this EntityTypeBuilder<VersionEntity> builder)
-		{
-			builder.ToTable("versions");
-			builder.HasKey(e => e.Id);
+        public static void Configure(this EntityTypeBuilder<VersionEntity> builder)
+        {
+            builder.ToTable("versions");
+            builder.HasKey(e => e.Id);
 
-			builder.Property(e => e.Id)
-				.HasColumnName("id")
-				.ValueGeneratedOnAdd();
+            builder.Property(e => e.Id)
+                .HasColumnName("id")
+                .ValueGeneratedOnAdd();
 
-			builder.HasOne(e => e.Project)
-				.WithMany(e => e.Versions)
-				.HasConstraintName("FK_project_versions")
-				.HasForeignKey("id_project")
-				.IsRequired()
-				.OnDelete(DeleteBehavior.Cascade);
-			builder.Property(b => b.Version)
-				.HasColumnName("version")
-				.IsRequired();
+            builder.HasOne(e => e.Project)
+                .WithMany(e => e.Versions)
+                .HasConstraintName("FK_project_versions")
+                .HasForeignKey("id_project")
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Cascade);
+            builder.Property(e => e.Version)
+                .HasColumnName("version")
+                .IsRequired();
+            builder.HasMany(e => e.Reports)
+                .WithOne()
+                .HasConstraintName("FK_version_reports")
+                .HasForeignKey("id_version")
+                .OnDelete(DeleteBehavior.Cascade);
 
-			builder.Property(e => e.UploadedAt)
-				.HasColumnName("uploaded_at")
-				.IsRequired();
-		}
-	}
+            builder.Property(e => e.UploadedAt)
+                .HasColumnName("uploaded_at")
+                .IsRequired();
+        }
+
+        public static void Configure(this EntityTypeBuilder<ReportEntity> builder)
+        {
+            builder.ToTable("reports");
+            builder.HasKey(e => e.Id);
+
+            builder.Property(e => e.Id)
+                .HasColumnName("id")
+                .ValueGeneratedOnAdd();
+            builder.HasMany(e => e.Metadata)
+                .WithOne()
+                .HasConstraintName("FK_report_metadata")
+                .HasForeignKey("id_report")
+                .OnDelete(DeleteBehavior.Cascade);
+        }
+
+        public static void Configure(this EntityTypeBuilder<MetadataEntity> builder)
+        {
+            builder.ToTable("metadata");
+            builder.HasKey(e => e.Id);
+
+            builder.Property(e => e.Id)
+                .HasColumnName("id")
+                .ValueGeneratedOnAdd();
+
+            builder.Property(e => e.Key)
+                .HasColumnName("key")
+                .IsRequired();
+            builder.Property(e => e.Value)
+                .HasColumnName("value")
+                .IsRequired();
+        }
+    }
 }
