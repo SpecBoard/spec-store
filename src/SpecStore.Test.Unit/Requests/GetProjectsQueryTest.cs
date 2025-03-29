@@ -8,6 +8,7 @@ namespace SpecStore.Test.Unit.Requests
 {
 	public partial class ReportPerformerTest
 	{
+		[Trait("Feature", "MP - Managing Projects")]
 		[Fact(DisplayName = "[UNIT][GPQ-001]: Get Projects")]
 		public async Task GetProjectQuery_PerformAsync_GetProjects()
 		{
