@@ -6,6 +6,6 @@ namespace SpecStore.Application.Entities
 	{
 		public required string Key { get; set; }
 		public ICollection<VersionEntity> Versions { get; set; } = [];
-		public DateTime UploadedAt { get; set; }
+		public DateTimeOffset UploadedAt { get; set; }
 	}
 }

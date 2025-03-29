@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using SpecStore.Application.Contexts;
 using SpecStore.Application.Performers;
+using SpecStore.Test.Unit.Fakers;
 using Xunit.Abstractions;
 
 [assembly: CollectionBehavior(DisableTestParallelization = true)]
@@ -31,10 +32,10 @@ namespace SpecStore.Test.Unit.Requests
 								.UseSqlite(_connection)
 								.Options;
 
-			using var context = new ReportContext(_database);
+			using var context = new ReportContext(_database, new FakeClock());
 			context.Database.EnsureCreated();
 
-			return new ReportPerformers(new ReportContext(_database), _logger);
+			return new ReportPerformers(new ReportContext(_database, new FakeClock()), _logger);
 		}
 
 		public void Dispose()

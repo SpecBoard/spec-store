@@ -104,19 +104,19 @@ namespace SpecStore.Test.Unit.Requests
 	{
 		public static async Task<IEnumerable<ProjectEntity>> GetProjectsAsync(this DbContextOptions<ReportContext> database)
 		{
-			using var context = new ReportContext(database);
+			using var context = new ReportContext(database, new FakeClock());
 			return await context.Projects.ToListAsync();
 		}
 
 		public static async Task<IEnumerable<VersionEntity>> GetVersionsAsync(this DbContextOptions<ReportContext> database, string project)
 		{
-			using var context = new ReportContext(database);
+			using var context = new ReportContext(database, new FakeClock());
 			return [.. (await context.Projects.Include(p => p.Versions).FirstAsync(e => e.Key == project))!.Versions];
 		}
 
 		public static async Task InsertAsync(this DbContextOptions<ReportContext> database, string project, string version)
 		{
-			await using var context = new ReportContext(database);
+			await using var context = new ReportContext(database, new FakeClock());
 			await using var transaction = await context.Database.BeginTransactionAsync();
 			var entity = new ProjectEntity { Key = project };
 			await context.AddAsync(entity);

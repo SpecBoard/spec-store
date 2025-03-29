@@ -2,6 +2,6 @@
 {
 	public interface ITrackedEntity
 	{
-		public DateTime UploadedAt { get; set; }
+		public DateTimeOffset UploadedAt { get; set; }
 	}
 }

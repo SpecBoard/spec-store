@@ -1,4 +1,5 @@
 using LightInject;
+using Microsoft.Extensions.Internal;
 using Serilog;
 using SpecStore.Wireup;
 using STrain.CQS.NetCore;
@@ -10,6 +11,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 
 builder.Services.AddHealthChecks();
+
+builder.Services.AddTransient<ISystemClock, SystemClock>();
 
 builder.Host.UseLightInject();
 builder.Host.UseSerilog((context, configuration) => configuration.ReadFrom.Configuration(context.Configuration));

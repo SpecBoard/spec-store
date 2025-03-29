@@ -22,12 +22,12 @@ namespace SpecStore.Application.Performers
 		{
 			_logger.LogDebug("Quering projects");
 
-			var projects = await _context.Projects.OrderBy(p => p.Key).ToListAsync(cancellationToken);
+			var projects = await _context.Projects.Include(p => p.Versions).OrderBy(p => p.Key).ToListAsync(cancellationToken);
 
 			_logger.LogTrace("Projects: {@Project}", projects);
 
 			_logger.LogInformation("Queried {ProjectCount} projects", projects.Count);
-			return projects.Select(p => new GetProjectsQuery.Result { Key = p.Key });
+			return projects.Select(p => new GetProjectsQuery.Result { Key = p.Key, Version = p.Versions.OrderBy(v => v.UploadedAt).Last().Version });
 		}
 
 		public async Task PerformAsync(UploadReportCommand command, CancellationToken cancellationToken)

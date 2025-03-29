@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using SpecStore.Application.Converters;
+using Microsoft.Extensions.Internal;
 using SpecStore.Application.Entities;
 using SpecStore.Application.Interceptors;
 using System.Runtime.CompilerServices;
@@ -8,14 +8,14 @@ using System.Runtime.CompilerServices;
 [assembly: InternalsVisibleTo("SpecStore.Test.Unit")]
 namespace SpecStore.Application.Contexts
 {
-	public class ReportContext(DbContextOptions<ReportContext> options) : DbContext(options)
+	public class ReportContext(DbContextOptions<ReportContext> options, ISystemClock clock) : DbContext(options)
 	{
 		public DbSet<ProjectEntity> Projects { get; set; }
 		public DbSet<VersionEntity> Versions { get; set; }
 
 		protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 		{
-			optionsBuilder.AddInterceptors(new TrackInterceptor());
+			optionsBuilder.AddInterceptors(new TrackInterceptor(clock));
 		}
 
 		protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -42,8 +42,7 @@ namespace SpecStore.Application.Contexts
 
 			builder.Property(e => e.UploadedAt)
 				.HasColumnName("uploaded_at")
-				.IsRequired()
-				.HasConversion(new UtcDateTimeConverter());
+				.IsRequired();
 		}
 
 		public static void Configure(this EntityTypeBuilder<VersionEntity> builder)
@@ -67,8 +66,7 @@ namespace SpecStore.Application.Contexts
 
 			builder.Property(e => e.UploadedAt)
 				.HasColumnName("uploaded_at")
-				.IsRequired()
-				.HasConversion(new UtcDateTimeConverter());
+				.IsRequired();
 		}
 	}
 }

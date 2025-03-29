@@ -7,6 +7,7 @@ namespace SpecStore
 		public record Result
 		{
 			public required string Key { get; init; }
+			public required string Version { get; init; }
 		}
 	}
 }
