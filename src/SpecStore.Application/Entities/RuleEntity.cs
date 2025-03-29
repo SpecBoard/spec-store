@@ -1,16 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace SpecStore.Application.Entities
+﻿namespace SpecStore.Application.Entities
 {
-    public class RuleEntity
-    {
-        public int Id { get; set; }
-        public required string Name { get; set; }
-        public required string Description { get; set; }
-        public ICollection<ScenarioEntity> Scenarios { get; set; } = [];
-    }
+	public class RuleEntity
+	{
+		public int Id { get; set; }
+		public required string Title { get; set; }
+		public string? Description { get; set; }
+		public ICollection<ScenarioEntity> Scenarios { get; set; } = [];
+	}
 }

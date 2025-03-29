@@ -3,12 +3,14 @@ using Microsoft.Extensions.Internal;
 using Serilog;
 using SpecStore.Wireup;
 using STrain.CQS.NetCore;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+	.AddJsonOptions(options => options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 
 builder.Services.AddHealthChecks();
 

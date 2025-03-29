@@ -42,12 +42,78 @@ namespace SpecStore.Application.Performers
 				project = new ProjectEntity { Key = command.Project };
 				await _context.Projects.AddAsync(project, cancellationToken).ConfigureAwait(false);
 			}
-			if (!project.Versions.Any(v => v.Version == command.Version)) await _context.Versions.AddAsync(new VersionEntity { Project = project, Version = command.Version });
+
+			var version = project.Versions.SingleOrDefault(v => v.Version == command.Version);
+			if (version is null)
+			{
+				version = new VersionEntity { Project = project, Version = command.Version };
+				await _context.Versions.AddAsync(version, cancellationToken).ConfigureAwait(false);
+			}
+
+			version.Reports.Add(new ReportEntity
+			{
+				Metadata = command.Metadata.AsEntity(),
+				Features = command.Features.AsEntity()
+			});
 
 			await _context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 			await transaction.CommitAsync(cancellationToken).ConfigureAwait(false);
 
 			_logger.LogInformation("Report to '{Project}' project has been uploaded", command.Project);
+		}
+	}
+
+	file static class ReportPerformersExtensions
+	{
+		public static ICollection<MetadataEntity> AsEntity(this IDictionary<string, string> metadata)
+		{
+			return [.. metadata.Select(m => new MetadataEntity { Key = m.Key, Value = m.Value })];
+		}
+
+		public static ICollection<FeatureEntity> AsEntity(this IEnumerable<UploadReportCommand.Feature> features)
+		{
+			return [.. features.Select(f => new FeatureEntity {
+				Title = f.Title,
+				Tags = f.Tags.AsEntity(),
+				Rules = f.Rules.AsEntity(),
+				Scenarios = f.Scenarios.AsEntity()
+			})];
+		}
+
+		public static ICollection<TagEntity> AsEntity(this IEnumerable<string> tags)
+		{
+			return [.. tags.Select(t => new TagEntity { Tag = t })];
+		}
+
+		public static ICollection<RuleEntity> AsEntity(this IEnumerable<UploadReportCommand.Rule> rules)
+		{
+			return [.. rules.Select(r => new RuleEntity
+			{
+				Title = r.Title,
+				Description = r.Description,
+				Scenarios = r.Scenarios.AsEntity()
+			})];
+		}
+
+		public static ICollection<ScenarioEntity> AsEntity(this IEnumerable<UploadReportCommand.Scenario> scenarios)
+		{
+			return [.. scenarios.Select(s => new ScenarioEntity
+			{
+				Title = s.Title,
+				Tags = s.Tags.AsEntity(),
+				Steps = s.Steps.AsEntity()
+			})];
+		}
+
+		public static ICollection<StepEntity> AsEntity(this IEnumerable<UploadReportCommand.Step> steps)
+		{
+			return [.. steps.Select(s => new StepEntity
+			{
+				Text = s.Text,
+				Status = s.Status,
+				Type = s.Type,
+				Duration = s.Duration
+			})];
 		}
 	}
 }
