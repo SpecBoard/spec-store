@@ -1,6 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using SpecStore.Application.Converters;
 using SpecStore.Application.Entities;
+using SpecStore.Application.Interceptors;
 using System.Runtime.CompilerServices;
 
 [assembly: InternalsVisibleTo("SpecStore.Test.Unit")]
@@ -10,6 +12,11 @@ namespace SpecStore.Application.Contexts
 	{
 		public DbSet<ProjectEntity> Projects { get; set; }
 		public DbSet<VersionEntity> Versions { get; set; }
+
+		protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+		{
+			optionsBuilder.AddInterceptors(new TrackInterceptor());
+		}
 
 		protected override void OnModelCreating(ModelBuilder modelBuilder)
 		{
@@ -32,6 +39,11 @@ namespace SpecStore.Application.Contexts
 			builder.Property(e => e.Key)
 				.HasColumnName("key")
 				.IsRequired();
+
+			builder.Property(e => e.UploadedAt)
+				.HasColumnName("uploaded_at")
+				.IsRequired()
+				.HasConversion(new UtcDateTimeConverter());
 		}
 
 		public static void Configure(this EntityTypeBuilder<VersionEntity> builder)
@@ -49,10 +61,14 @@ namespace SpecStore.Application.Contexts
 				.HasForeignKey("id_project")
 				.IsRequired()
 				.OnDelete(DeleteBehavior.Cascade);
-
 			builder.Property(b => b.Version)
 				.HasColumnName("version")
 				.IsRequired();
+
+			builder.Property(e => e.UploadedAt)
+				.HasColumnName("uploaded_at")
+				.IsRequired()
+				.HasConversion(new UtcDateTimeConverter());
 		}
 	}
 }
