@@ -1,7 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
-using SpecStore.Api;
-using SpecStore.Application.Contexts;
+﻿using SpecStore.Api;
 using SpecStore.Application.Entities;
+using SpecStore.Test.Unit.Extensions;
 using SpecStore.Test.Unit.Fakers;
 using STrain.Core.Exceptions;
 
@@ -69,17 +68,6 @@ namespace SpecStore.Test.Unit.Requests
 
 	file static class ReportPerformerTestExtensions
 	{
-		public static async Task InsertAsync(this DbContextOptions<ReportContext> options, ProjectEntity entity)
-		{
-			using var context = new ReportContext(options, new FakeClock());
-			using var transaction = await context.Database.BeginTransactionAsync();
-
-			await context.Projects.AddAsync(entity);
-
-			await context.SaveChangesAsync();
-			await transaction.CommitAsync();
-		}
-
 		public static IEnumerable<GetProjectSummaryQuery.Result.ScenarioSummary> GetFailedScenarios(this IEnumerable<FeatureEntity> features)
 		{
 			var result = new List<GetProjectSummaryQuery.Result.ScenarioSummary>();

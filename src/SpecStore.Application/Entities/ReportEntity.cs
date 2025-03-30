@@ -5,6 +5,7 @@ namespace SpecStore.Application.Entities
 	public class ReportEntity : ITrackedEntity
 	{
 		public int Id { get; set; }
+		public VersionEntity Version { get; set; } = null!;
 		public ICollection<MetadataEntity> Metadata { get; set; } = [];
 		public ICollection<FeatureEntity> Features { get; set; } = [];
 

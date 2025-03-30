@@ -38,6 +38,7 @@ namespace SpecStore.Wireup
 				builder.AddPerformer<ICommandPerformer<UploadReportCommand>, ReportPerformers>();
 				builder.AddPerformer<IQueryPerformer<GetProjectsQuery, IEnumerable<GetProjectsQuery.Result>>, ReportPerformers>();
 				builder.AddPerformer<IQueryPerformer<GetProjectSummaryQuery, GetProjectSummaryQuery.Result>, ReportPerformers>();
+				builder.AddPerformer<IQueryPerformer<GetProjectEvolutionQuery, IEnumerable<GetProjectEvolutionQuery.Result>>, ReportPerformers>();
 
 				builder.AddMvcRequestReceiver()
 					.UseLogger();

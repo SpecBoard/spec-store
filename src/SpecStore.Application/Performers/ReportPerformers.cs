@@ -9,6 +9,7 @@ namespace SpecStore.Application.Performers
 {
 	public class ReportPerformers : IQueryPerformer<GetProjectsQuery, IEnumerable<GetProjectsQuery.Result>>,
 		IQueryPerformer<GetProjectSummaryQuery, GetProjectSummaryQuery.Result>,
+		IQueryPerformer<GetProjectEvolutionQuery, IEnumerable<GetProjectEvolutionQuery.Result>>,
 		ICommandPerformer<UploadReportCommand>
 
 	{
@@ -85,11 +86,37 @@ namespace SpecStore.Application.Performers
 				Fail = report.Features.Sum(f => f.FailCount),
 				Skipped = report.Features.Sum(f => f.SkippedCount),
 				Duration = report.Duration,
-				FailedScenarios = report.Features.GetFailedScenarios().ToList()
+				FailedScenarios = [.. report.Features.GetFailedScenarios()]
 			};
 			_logger.LogDebug("Result: {@Project}", result);
 
 			return result;
+		}
+
+		public async Task<IEnumerable<GetProjectEvolutionQuery.Result>> PerformAsync(GetProjectEvolutionQuery query, CancellationToken cancellationToken)
+		{
+			var reports = await _context.Reports
+											.AsNoTracking()
+											.Include(r => r.Version)
+											.Include(r => r.Features)
+												.ThenInclude(f => f.Rules)
+													.ThenInclude(r => r.Scenarios)
+														.ThenInclude(s => s.Steps)
+											.Include(r => r.Features)
+												.ThenInclude(f => f.Scenarios)
+													.ThenInclude(s => s.Steps)
+											.OrderBy(r => r.UploadedAt)
+											.Take(4)
+											.ToListAsync(cancellationToken: cancellationToken);
+
+			return reports.Select(r => new GetProjectEvolutionQuery.Result
+			{
+				Id = r.Id,
+				Version = r.Version.Version,
+				Pass = r.Features.Sum(f => f.PassCount),
+				Fail = r.Features.Sum(f => f.FailCount),
+				Skipped = r.Features.Sum(f => f.SkippedCount)
+			});
 		}
 
 		public async Task PerformAsync(UploadReportCommand command, CancellationToken cancellationToken)

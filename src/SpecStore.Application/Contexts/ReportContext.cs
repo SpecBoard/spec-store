@@ -56,7 +56,8 @@ namespace SpecStore.Application.Contexts
 
 			builder.Property(e => e.UploadedAt)
 				.HasColumnName("uploaded_at")
-				.IsRequired();
+				.IsRequired()
+				.HasConversion<long>();
 		}
 
 		public static void Configure(this EntityTypeBuilder<VersionEntity> builder)
@@ -78,14 +79,15 @@ namespace SpecStore.Application.Contexts
 				.HasColumnName("version")
 				.IsRequired();
 			builder.HasMany(e => e.Reports)
-				.WithOne()
+				.WithOne(e => e.Version)
 				.HasConstraintName("FK_version_reports")
 				.HasForeignKey("id_version")
 				.OnDelete(DeleteBehavior.Cascade);
 
 			builder.Property(e => e.UploadedAt)
 				.HasColumnName("uploaded_at")
-				.IsRequired();
+				.IsRequired()
+				.HasConversion<long>();
 		}
 
 		public static void Configure(this EntityTypeBuilder<ReportEntity> builder)
@@ -104,7 +106,8 @@ namespace SpecStore.Application.Contexts
 
 			builder.Property(e => e.UploadedAt)
 				.HasColumnName("uploaded_at")
-				.IsRequired();
+				.IsRequired()
+				.HasConversion<long>();
 		}
 
 		public static void Configure(this EntityTypeBuilder<MetadataEntity> builder)
