@@ -95,6 +95,7 @@ namespace SpecStore.Application.Performers
 
 		public async Task<IEnumerable<GetProjectEvolutionQuery.Result>> PerformAsync(GetProjectEvolutionQuery query, CancellationToken cancellationToken)
 		{
+			_logger.LogDebug("Query evolution of {Project} project", query.Key);
 			var reports = await _context.Reports
 											.AsNoTracking()
 											.Include(r => r.Version)
@@ -105,18 +106,25 @@ namespace SpecStore.Application.Performers
 											.Include(r => r.Features)
 												.ThenInclude(f => f.Scenarios)
 													.ThenInclude(s => s.Steps)
-											.OrderBy(r => r.UploadedAt)
+											.OrderByDescending(r => r.UploadedAt)
+											.Where(r => r.Version.Project.Key == query.Key)
 											.Take(4)
 											.ToListAsync(cancellationToken: cancellationToken);
 
-			return reports.Select(r => new GetProjectEvolutionQuery.Result
+			_logger.LogInformation("Queried evolution of {Project} project", query.Key);
+
+			var result = reports.Select(r => new GetProjectEvolutionQuery.Result
 			{
 				Id = r.Id,
 				Version = r.Version.Version,
 				Pass = r.Features.Sum(f => f.PassCount),
 				Fail = r.Features.Sum(f => f.FailCount),
 				Skipped = r.Features.Sum(f => f.SkippedCount)
-			});
+			}).ToList();
+
+			_logger.LogTrace("Result: {@Evolution}", result);
+
+			return result;
 		}
 
 		public async Task PerformAsync(UploadReportCommand command, CancellationToken cancellationToken)

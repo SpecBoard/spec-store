@@ -47,7 +47,7 @@ namespace SpecStore.Test.Unit.Requests
 	{
 		public static IEnumerable<Action<GetProjectEvolutionQuery.Result>> Inspect(this IEnumerable<VersionEntity> versions)
 		{
-			foreach (var report in versions.SelectMany(v => v.Reports).OrderBy(r => r.UploadedAt).Take(4))
+			foreach (var report in versions.SelectMany(v => v.Reports).OrderByDescending(r => r.UploadedAt).Take(4))
 			{
 				yield return r =>
 				{
