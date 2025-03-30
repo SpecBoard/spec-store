@@ -11,5 +11,7 @@ namespace SpecStore.Application.Entities
 
 		[DatabaseGenerated(DatabaseGeneratedOption.Computed)]
 		public Status Status => Steps.Any(s => s.Status == Status.Fail) ? Status.Fail : Steps.Any(s => s.Status == Status.Skipped) ? Status.Skipped : Status.Pass;
+		[DatabaseGenerated(DatabaseGeneratedOption.Computed)]
+		public TimeSpan Duration => TimeSpan.FromTicks(Steps.Sum(s => s.Duration.Ticks));
 	}
 }

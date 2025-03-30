@@ -17,5 +17,8 @@ namespace SpecStore.Application.Entities
 
 		[DatabaseGenerated(DatabaseGeneratedOption.Computed)]
 		public int SkippedCount => Scenarios.Count(s => s.Status == Status.Skipped);
+
+		[DatabaseGenerated(DatabaseGeneratedOption.Computed)]
+		public TimeSpan Duration => TimeSpan.FromTicks(Scenarios.Sum(s => s.Duration.Ticks));
 	}
 }

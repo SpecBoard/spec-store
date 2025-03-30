@@ -49,6 +49,7 @@ namespace SpecStore.Test.Unit.Requests
 			Assert.Equal(report.Features.Sum(f => f.PassCount), result.Pass);
 			Assert.Equal(report.Features.Sum(f => f.FailCount), result.Fail);
 			Assert.Equal(report.Features.Sum(f => f.SkippedCount), result.Skipped);
+			Assert.Equal(report.Features.CalculateDuration(), result.Duration);
 			Assert.Collection(result.FailedScenarios.OrderBy(s => s.Id), [.. report.Features.GetFailedScenarios().OrderBy(s => s.Id).Inspect()]);
 		}
 
@@ -116,6 +117,16 @@ namespace SpecStore.Test.Unit.Requests
 			{
 				yield return v => Assert.Equal(value, v);
 			}
+		}
+
+		public static TimeSpan CalculateDuration(this IEnumerable<FeatureEntity> features)
+		{
+			var result = TimeSpan.Zero;
+			foreach (var step in features.SelectMany(f => f.Rules.SelectMany(r => r.Scenarios.SelectMany(s => s.Steps))).Concat(features.SelectMany(f => f.Scenarios.SelectMany(s => s.Steps))))
+			{
+				result += step.Duration;
+			}
+			return result;
 		}
 	}
 }

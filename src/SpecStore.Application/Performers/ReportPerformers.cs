@@ -26,6 +26,7 @@ namespace SpecStore.Application.Performers
 			_logger.LogDebug("Quering projects");
 
 			var projects = await _context.Projects
+									.AsNoTracking()
 									.Include(p => p.Versions)
 										.ThenInclude(v => v.Reports)
 											.ThenInclude(r => r.Features)
@@ -50,6 +51,7 @@ namespace SpecStore.Application.Performers
 			_logger.LogDebug("Querying summary of {Project} project", query.Key);
 
 			var project = await _context.Projects
+									.AsNoTracking()
 									.Include(p => p.Versions)
 										.ThenInclude(v => v.Reports)
 											.ThenInclude(r => r.Features)
@@ -82,6 +84,7 @@ namespace SpecStore.Application.Performers
 				Pass = report.Features.Sum(f => f.PassCount),
 				Fail = report.Features.Sum(f => f.FailCount),
 				Skipped = report.Features.Sum(f => f.SkippedCount),
+				Duration = report.Duration,
 				FailedScenarios = report.Features.GetFailedScenarios().ToList()
 			};
 			_logger.LogDebug("Result: {@Project}", result);

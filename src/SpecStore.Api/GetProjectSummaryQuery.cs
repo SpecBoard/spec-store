@@ -20,6 +20,7 @@ namespace SpecStore
 			public required int Pass { get; set; }
 			public required int Fail { get; set; }
 			public required int Skipped { get; init; }
+			public required TimeSpan Duration { get; init; }
 			public IEnumerable<ScenarioSummary> FailedScenarios { get; init; } = [];
 
 			public record ScenarioSummary
