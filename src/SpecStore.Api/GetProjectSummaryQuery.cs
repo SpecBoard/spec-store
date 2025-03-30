@@ -5,16 +5,28 @@ namespace SpecStore
 {
 	public record GetProjectSummaryQuery : Query<GetProjectSummaryQuery.Result>
 	{
-		public required string Key { get; init; }
+		public string Key { get; }
+
+		public GetProjectSummaryQuery(string key)
+		{
+			Key = key;
+		}
 
 		public record Result
 		{
 			public required string Key { get; init; }
 			public required string Version { get; init; }
 			public required DateTimeOffset LastReport { get; init; }
-			public required int PassCount { get; init; }
-			public required int FailCount { get; init; }
-			public required int SkippedCount { get; init; }
+			public required int Pass { get; set; }
+			public required int Fail { get; set; }
+			public required int Skipped { get; init; }
+			public IEnumerable<ScenarioSummary> FailedScenarios { get; init; } = [];
+
+			public record ScenarioSummary
+			{
+				public required int Id { get; set; }
+				public IEnumerable<string> Segments { get; init; } = [];
+			}
 		}
 	}
 }

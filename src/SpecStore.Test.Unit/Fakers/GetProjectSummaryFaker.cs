@@ -6,7 +6,7 @@ namespace SpecStore.Test.Unit.Fakers
 	{
 		public GetProjectSummaryFaker Key(string? key)
 		{
-			RuleFor(q => q.Key, key);
+			CustomInstantiator(_ => new GetProjectSummaryQuery(key!));
 
 			return this;
 		}

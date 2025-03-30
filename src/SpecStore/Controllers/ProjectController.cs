@@ -24,7 +24,7 @@ namespace SpecStore.Controllers
 		[HttpGet("{key}/summary")]
 		public async Task<IActionResult> GetProjectSummaryAsync(string key, CancellationToken cancellationToken)
 		{
-			return await _requestReceiver.ReceiveQueryAsync(new GetProjectSummaryQuery { Key = key }, cancellationToken);
+			return await _requestReceiver.ReceiveQueryAsync(new GetProjectSummaryQuery(key), cancellationToken);
 		}
 
 		[HttpPost("{key}")]

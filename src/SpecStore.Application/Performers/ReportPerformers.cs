@@ -79,9 +79,10 @@ namespace SpecStore.Application.Performers
 				Key = project.Key,
 				Version = version.Version,
 				LastReport = report.UploadedAt,
-				PassCount = report.Features.Sum(f => f.PassCount),
-				FailCount = report.Features.Sum(f => f.FailCount),
-				SkippedCount = report.Features.Sum(f => f.SkippedCount)
+				Pass = report.Features.Sum(f => f.PassCount),
+				Fail = report.Features.Sum(f => f.FailCount),
+				Skipped = report.Features.Sum(f => f.SkippedCount),
+				FailedScenarios = report.Features.GetFailedScenarios().ToList()
 			};
 			_logger.LogDebug("Result: {@Project}", result);
 
@@ -190,6 +191,29 @@ namespace SpecStore.Application.Performers
 				FailCount = report.Features.Sum(f => f.FailCount),
 				SkippedCount = report.Features.Sum(f => f.SkippedCount)
 			};
+		}
+
+		public static IEnumerable<GetProjectSummaryQuery.Result.ScenarioSummary> GetFailedScenarios(this IEnumerable<FeatureEntity> features)
+		{
+			var result = new List<GetProjectSummaryQuery.Result.ScenarioSummary>();
+
+			foreach (var feature in features.Where(f => f.FailCount > 0))
+			{
+				foreach (var rule in feature.Rules.Where(r => r.FailCount > 0))
+				{
+					foreach (var scenario in rule.Scenarios.Where(s => s.Status == Status.Fail))
+					{
+						result.Add(new GetProjectSummaryQuery.Result.ScenarioSummary { Id = scenario.Id, Segments = [feature.Title, rule.Title, scenario.Title] });
+					}
+				}
+
+				foreach (var scenario in feature.Scenarios.Where(s => s.Status == Status.Fail))
+				{
+					result.Add(new GetProjectSummaryQuery.Result.ScenarioSummary { Id = scenario.Id, Segments = [feature.Title, scenario.Title] });
+				}
+			}
+
+			return result;
 		}
 	}
 }

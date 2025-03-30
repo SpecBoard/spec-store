@@ -46,9 +46,10 @@ namespace SpecStore.Test.Unit.Requests
 			Assert.Equal(project.Key, result.Key);
 			Assert.Equal(version.Version, result.Version);
 			Assert.Equal(report.UploadedAt, result.LastReport);
-			Assert.Equal(report.Features.Sum(f => f.PassCount), result.PassCount);
-			Assert.Equal(report.Features.Sum(f => f.FailCount), result.FailCount);
-			Assert.Equal(report.Features.Sum(f => f.SkippedCount), result.SkippedCount);
+			Assert.Equal(report.Features.Sum(f => f.PassCount), result.Pass);
+			Assert.Equal(report.Features.Sum(f => f.FailCount), result.Fail);
+			Assert.Equal(report.Features.Sum(f => f.SkippedCount), result.Skipped);
+			Assert.Collection(result.FailedScenarios.OrderBy(s => s.Id), [.. report.Features.GetFailedScenarios().OrderBy(s => s.Id).Inspect()]);
 		}
 
 		[Trait("Feature", "PS - Project Summary")]
@@ -76,6 +77,45 @@ namespace SpecStore.Test.Unit.Requests
 
 			await context.SaveChangesAsync();
 			await transaction.CommitAsync();
+		}
+
+		public static IEnumerable<GetProjectSummaryQuery.Result.ScenarioSummary> GetFailedScenarios(this IEnumerable<FeatureEntity> features)
+		{
+			var result = new List<GetProjectSummaryQuery.Result.ScenarioSummary>();
+
+			foreach (var feature in features.Where(f => f.FailCount > 0))
+			{
+				foreach (var rule in feature.Rules.Where(r => r.FailCount > 0))
+				{
+					foreach (var scenario in rule.Scenarios.Where(s => s.Status == Status.Fail))
+					{
+						result.Add(new GetProjectSummaryQuery.Result.ScenarioSummary { Id = scenario.Id, Segments = [feature.Title, rule.Title, scenario.Title] });
+					}
+				}
+
+				foreach (var scenario in feature.Scenarios.Where(s => s.Status == Status.Fail))
+				{
+					result.Add(new GetProjectSummaryQuery.Result.ScenarioSummary { Id = scenario.Id, Segments = [feature.Title, scenario.Title] });
+				}
+			}
+
+			return result;
+		}
+
+		public static IEnumerable<Action<GetProjectSummaryQuery.Result.ScenarioSummary>> Inspect(this IEnumerable<GetProjectSummaryQuery.Result.ScenarioSummary> scenarios)
+		{
+			foreach (var scenario in scenarios)
+			{
+				yield return s => Assert.Collection(s.Segments, [.. scenario.Segments.Inspect()]);
+			}
+		}
+
+		public static IEnumerable<Action<string>> Inspect(this IEnumerable<string> values)
+		{
+			foreach (var value in values)
+			{
+				yield return v => Assert.Equal(value, v);
+			}
 		}
 	}
 }
