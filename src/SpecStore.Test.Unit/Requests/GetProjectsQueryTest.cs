@@ -43,7 +43,7 @@ namespace SpecStore.Test.Unit.Requests
 
 		public static IEnumerable<Action<GetProjectsQuery.Result>> Inspect(this IEnumerable<ProjectEntity> projects)
 		{
-			foreach (var project in projects.OrderBy(p => p.Key))
+			foreach (var project in projects.OrderBy(p => p.Key).ToList())
 			{
 				yield return r =>
 				{

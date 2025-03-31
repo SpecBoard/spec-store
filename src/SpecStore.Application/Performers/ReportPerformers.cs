@@ -38,13 +38,12 @@ namespace SpecStore.Application.Performers
 										.ThenInclude(v => v.Reports)
 											.ThenInclude(r => r.Features)
 												.ThenInclude(f => f.Scenarios)
-													.ThenInclude(s => s.Steps)
-									.OrderBy(p => p.Key).ToListAsync(cancellationToken);
+													.ThenInclude(s => s.Steps).ToListAsync(cancellationToken);
 
 			_logger.LogTrace("Projects: {@Project}", projects);
 
 			_logger.LogInformation("Queried {ProjectCount} projects", projects.Count);
-			return projects.Select(p => p.AsResult()).ToList();
+			return [.. projects.Select(p => p.AsResult()).OrderBy(p => p.Key)];
 		}
 
 		public async Task<GetProjectSummaryQuery.Result> PerformAsync(GetProjectSummaryQuery query, CancellationToken cancellationToken)
