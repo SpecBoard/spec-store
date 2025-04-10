@@ -68,7 +68,7 @@ namespace SpecStore.Application.Performers
 			if (project is null)
 			{
 				_logger.LogError("{Project} project was not found", query.Key);
-				throw new NotFoundException(query.Key);
+				throw new NotFoundException("/errors/resource-not-found", "Not Found", $"Project with '{query.Key}' key was not found");
 			}
 
 			var version = project.Versions.OrderBy(v => v.UploadedAt).Last();

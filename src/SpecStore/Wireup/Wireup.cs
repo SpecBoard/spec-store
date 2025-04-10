@@ -1,6 +1,8 @@
 ﻿using LightInject;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
+using SpecStore.Api;
 using SpecStore.Application.Contexts;
 using SpecStore.Application.Performers;
 using SpecStore.Options;
@@ -24,6 +26,7 @@ namespace SpecStore.Wireup
 				var options = provider.GetRequiredService<IOptions<DatabaseOptions>>();
 				builder.UseNpgsql(options.Value.ConnectionString);
 			});
+
 		}
 
 		public static void ConfigureContainer(this IServiceRegistry registry)
@@ -45,8 +48,12 @@ namespace SpecStore.Wireup
 				builder.AddGenericRequestHandler("api");
 
 				builder.AddRequestValidator()
-					.UseFluentRequestValidator(builder => builder.RegistrateFrom<UploadReportCommand>());
+					.UseFluentRequestValidator(builder => builder.RegistrateFrom(typeof(GetProjectEvolutionQueryValidator).Assembly));
 			});
+
+			builder.Services.RemoveAll<IProblemDetailsWriter>();
+			builder.Services.AddExceptionHandler()
+				.UseDefaultWriters();
 		}
 
 		public static async Task InitializeAsync(this WebApplication application)
