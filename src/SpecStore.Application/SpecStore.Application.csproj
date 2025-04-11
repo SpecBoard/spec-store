@@ -11,6 +11,7 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="9.0.3" />
     <PackageReference Include="STrain.Core" Version="2.0.0-rc.2" />
     <PackageReference Include="STrain.CQS" Version="2.0.0-rc.2" />
+    <PackageReference Include="STrain.Eventing" Version="3.0.0-rc.1" />
   </ItemGroup>
 
   <ItemGroup>

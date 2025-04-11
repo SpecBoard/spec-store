@@ -1,4 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Moq;
+using SpecStore.Api;
 using SpecStore.Application.Contexts;
 using SpecStore.Application.Entities;
 using SpecStore.Test.Unit.Fakers;
@@ -88,6 +90,21 @@ namespace SpecStore.Test.Unit.Requests
 
 			// Assert
 			Assert.Collection(await _database.GetVersionsAsync(command.Project), p => p.Version = command.Version);
+		}
+
+		[Trait("Feature", "MP - Managing Projects")]
+		[Fact(DisplayName = "[UNIT][UPR-006]: Publish Event about Uploaded Report")]
+		public async Task UploadReportCommand_PerformAsyn_PublishEventAboutUploadedReport()
+		{
+			// Arrange
+			var sut = CreateSUT();
+			var command = new UploadReportFaker().Generate();
+
+			// Act
+			await sut.PerformAsync(command, default);
+
+			// Assert
+			_publisherMock.Verify(p => p.PublishAsync(It.Is<ReportUploadedEvent>(e => e.Project == command.Project && e.Version == command.Version), "specstore.report.uploaded", It.IsAny<CancellationToken>()), Times.Once());
 		}
 	}
 

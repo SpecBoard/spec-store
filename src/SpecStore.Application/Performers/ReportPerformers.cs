@@ -1,9 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using SpecStore.Api;
 using SpecStore.Application.Contexts;
 using SpecStore.Application.Entities;
 using STrain;
 using STrain.Core.Exceptions;
+using STrain.Eventing.Publishers;
 
 namespace SpecStore.Application.Performers
 {
@@ -14,11 +16,13 @@ namespace SpecStore.Application.Performers
 
 	{
 		private readonly ReportContext _context;
+		private readonly IEventPublisher _publisher;
 		private readonly ILogger<ReportPerformers> _logger;
 
-		public ReportPerformers(ReportContext context, ILogger<ReportPerformers> logger)
+		public ReportPerformers(ReportContext context, IEventPublisher publisher, ILogger<ReportPerformers> logger)
 		{
 			_context = context;
+			_publisher = publisher;
 			_logger = logger;
 		}
 
@@ -157,6 +161,7 @@ namespace SpecStore.Application.Performers
 			await _context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 			await transaction.CommitAsync(cancellationToken).ConfigureAwait(false);
 
+			await _publisher.PublishAsync(new ReportUploadedEvent { Project = command.Project, Version = command.Version }, "specstore.report.uploaded", cancellationToken).ConfigureAwait(false);
 			_logger.LogInformation("Report to '{Project}' project has been uploaded", command.Project);
 		}
 	}
