@@ -16,5 +16,8 @@ namespace SpecStore.Application.Entities
 		public int FailCount => Rules.Sum(r => r.FailCount) + Scenarios.Count(s => s.Status == Status.Fail);
 		[DatabaseGenerated(DatabaseGeneratedOption.Computed)]
 		public int SkippedCount => Rules.Sum(r => r.SkippedCount) + Scenarios.Count(s => s.Status == Status.Skipped);
+
+		[DatabaseGenerated(DatabaseGeneratedOption.Computed)]
+		public TimeSpan Duration => TimeSpan.FromTicks(Rules.Sum(r => r.Duration.Ticks) + Scenarios.Sum(s => s.Duration.Ticks));
 	}
 }

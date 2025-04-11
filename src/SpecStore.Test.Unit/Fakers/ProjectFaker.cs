@@ -8,7 +8,17 @@ namespace SpecStore.Test.Unit.Fakers
 	{
 		public ProjectFaker()
 		{
-			RuleFor(p => p.Versions, (_, p) => new AutoFaker<VersionEntity>().RuleFor(v => v.Project, p).GenerateBetween(1, 3));
+			AutoFaker.Configure(builder => builder.WithOverride(context => context.Faker.Date.Timespan(TimeSpan.FromMinutes(10))));
+
+			var versionFaker = new AutoFaker<VersionEntity>();
+			RuleFor(p => p.Versions, (_, p) => versionFaker.RuleFor(v => v.Project, p).GenerateBetween(1, 3));
+		}
+
+		public ProjectFaker Key(string key)
+		{
+			RuleFor(p => p.Key, key);
+
+			return this;
 		}
 	}
 }

@@ -3,11 +3,15 @@ using Microsoft.Extensions.Logging;
 using SpecStore.Application.Contexts;
 using SpecStore.Application.Entities;
 using STrain;
+using STrain.Core.Exceptions;
 
 namespace SpecStore.Application.Performers
 {
 	public class ReportPerformers : IQueryPerformer<GetProjectsQuery, IEnumerable<GetProjectsQuery.Result>>,
+		IQueryPerformer<GetProjectSummaryQuery, GetProjectSummaryQuery.Result>,
+		IQueryPerformer<GetProjectEvolutionQuery, IEnumerable<GetProjectEvolutionQuery.Result>>,
 		ICommandPerformer<UploadReportCommand>
+
 	{
 		private readonly ReportContext _context;
 		private readonly ILogger<ReportPerformers> _logger;
@@ -23,6 +27,31 @@ namespace SpecStore.Application.Performers
 			_logger.LogDebug("Quering projects");
 
 			var projects = await _context.Projects
+									.AsNoTracking()
+									.Include(p => p.Versions)
+										.ThenInclude(v => v.Reports)
+											.ThenInclude(r => r.Features)
+												.ThenInclude(f => f.Rules)
+													.ThenInclude(r => r.Scenarios)
+														.ThenInclude(s => s.Steps)
+									.Include(p => p.Versions)
+										.ThenInclude(v => v.Reports)
+											.ThenInclude(r => r.Features)
+												.ThenInclude(f => f.Scenarios)
+													.ThenInclude(s => s.Steps).ToListAsync(cancellationToken);
+
+			_logger.LogTrace("Projects: {@Project}", projects);
+
+			_logger.LogInformation("Queried {ProjectCount} projects", projects.Count);
+			return [.. projects.Select(p => p.AsResult()).OrderBy(p => p.Key)];
+		}
+
+		public async Task<GetProjectSummaryQuery.Result> PerformAsync(GetProjectSummaryQuery query, CancellationToken cancellationToken)
+		{
+			_logger.LogDebug("Querying summary of {Project} project", query.Key);
+
+			var project = await _context.Projects
+									.AsNoTracking()
 									.Include(p => p.Versions)
 										.ThenInclude(v => v.Reports)
 											.ThenInclude(r => r.Features)
@@ -34,12 +63,67 @@ namespace SpecStore.Application.Performers
 											.ThenInclude(r => r.Features)
 												.ThenInclude(f => f.Scenarios)
 													.ThenInclude(s => s.Steps)
-									.OrderBy(p => p.Key).ToListAsync(cancellationToken);
+									.SingleOrDefaultAsync(p => p.Key == query.Key, cancellationToken);
 
-			_logger.LogTrace("Projects: {@Project}", projects);
+			if (project is null)
+			{
+				_logger.LogError("{Project} project was not found", query.Key);
+				throw new NotFoundException("/errors/resource-not-found", "Not Found", $"Project with '{query.Key}' key was not found");
+			}
 
-			_logger.LogInformation("Queried {ProjectCount} projects", projects.Count);
-			return projects.Select(p => p.AsResult()).ToList();
+			var version = project.Versions.OrderBy(v => v.UploadedAt).Last();
+			var report = version.Reports.OrderBy(v => v.UploadedAt).Last();
+
+			_logger.LogInformation("Queried summary of {Project} project", query.Key);
+
+			var result = new GetProjectSummaryQuery.Result
+			{
+				Key = project.Key,
+				Version = version.Version,
+				LastReport = report.UploadedAt,
+				Pass = report.Features.Sum(f => f.PassCount),
+				Fail = report.Features.Sum(f => f.FailCount),
+				Skipped = report.Features.Sum(f => f.SkippedCount),
+				Duration = report.Duration,
+				FailedScenarios = [.. report.Features.GetFailedScenarios()]
+			};
+			_logger.LogDebug("Result: {@Project}", result);
+
+			return result;
+		}
+
+		public async Task<IEnumerable<GetProjectEvolutionQuery.Result>> PerformAsync(GetProjectEvolutionQuery query, CancellationToken cancellationToken)
+		{
+			_logger.LogDebug("Query evolution of {Project} project", query.Key);
+			var reports = await _context.Reports
+											.AsNoTracking()
+											.Include(r => r.Version)
+											.Include(r => r.Features)
+												.ThenInclude(f => f.Rules)
+													.ThenInclude(r => r.Scenarios)
+														.ThenInclude(s => s.Steps)
+											.Include(r => r.Features)
+												.ThenInclude(f => f.Scenarios)
+													.ThenInclude(s => s.Steps)
+											.OrderByDescending(r => r.UploadedAt)
+											.Where(r => r.Version.Project.Key == query.Key)
+											.Take(4)
+											.ToListAsync(cancellationToken: cancellationToken);
+
+			_logger.LogInformation("Queried evolution of {Project} project", query.Key);
+
+			var result = reports.Select(r => new GetProjectEvolutionQuery.Result
+			{
+				Id = r.Id,
+				Version = r.Version.Version,
+				Pass = r.Features.Sum(f => f.PassCount),
+				Fail = r.Features.Sum(f => f.FailCount),
+				Skipped = r.Features.Sum(f => f.SkippedCount)
+			}).ToList();
+
+			_logger.LogTrace("Result: {@Evolution}", result);
+
+			return result;
 		}
 
 		public async Task PerformAsync(UploadReportCommand command, CancellationToken cancellationToken)
@@ -144,6 +228,29 @@ namespace SpecStore.Application.Performers
 				FailCount = report.Features.Sum(f => f.FailCount),
 				SkippedCount = report.Features.Sum(f => f.SkippedCount)
 			};
+		}
+
+		public static IEnumerable<GetProjectSummaryQuery.Result.ScenarioSummary> GetFailedScenarios(this IEnumerable<FeatureEntity> features)
+		{
+			var result = new List<GetProjectSummaryQuery.Result.ScenarioSummary>();
+
+			foreach (var feature in features.Where(f => f.FailCount > 0))
+			{
+				foreach (var rule in feature.Rules.Where(r => r.FailCount > 0))
+				{
+					foreach (var scenario in rule.Scenarios.Where(s => s.Status == Status.Fail))
+					{
+						result.Add(new GetProjectSummaryQuery.Result.ScenarioSummary { Id = scenario.Id, Segments = [feature.Title, rule.Title, scenario.Title] });
+					}
+				}
+
+				foreach (var scenario in feature.Scenarios.Where(s => s.Status == Status.Fail))
+				{
+					result.Add(new GetProjectSummaryQuery.Result.ScenarioSummary { Id = scenario.Id, Segments = [feature.Title, scenario.Title] });
+				}
+			}
+
+			return result;
 		}
 	}
 }

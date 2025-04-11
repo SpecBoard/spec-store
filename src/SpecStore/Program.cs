@@ -22,11 +22,14 @@ builder.Host.UseSerilog((context, configuration) => configuration.ReadFrom.Confi
 builder.Services.ConfigureServices(builder.Configuration);
 builder.Host.ConfigureContainer<IServiceRegistry>(registry => registry.ConfigureContainer());
 
+builder.Services.AddHttpClient();
+builder.Services.AddHttpContextAccessor();
+
 builder.ConfigureSTrain();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+app.UseExceptionHandler();
 
 app.UseHealthChecks("/.well-known/healthy");
 
@@ -34,7 +37,6 @@ app.UseAuthorization();
 
 app.MapControllers();
 app.MapGenericRequestController();
-
 
 await app.InitializeAsync();
 

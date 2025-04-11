@@ -2,12 +2,14 @@
 using Microsoft.EntityFrameworkCore;
 using SpecStore.Application.Contexts;
 using SpecStore.Application.Entities;
+using SpecStore.Test.Unit.Extensions;
 using SpecStore.Test.Unit.Fakers;
 
 namespace SpecStore.Test.Unit.Requests
 {
 	public partial class ReportPerformerTest
 	{
+		[Trait("Feature", "MP - Managing Projects")]
 		[Fact(DisplayName = "[UNIT][GPQ-001]: Get Projects")]
 		public async Task GetProjectQuery_PerformAsync_GetProjects()
 		{
@@ -27,18 +29,6 @@ namespace SpecStore.Test.Unit.Requests
 
 	file static class ReportPerformerTestExtensions
 	{
-		public static async Task InsertAsync(this DbContextOptions<ReportContext> database, IEnumerable<ProjectEntity> projects)
-		{
-			await using var context = new ReportContext(database, new FakeClock());
-			await using var transation = await context.Database.BeginTransactionAsync();
-
-			await context.Projects.AddRangeAsync(projects);
-			await context.Versions.AddRangeAsync(projects.SelectMany(p => p.Versions));
-
-			await context.SaveChangesAsync();
-			await transation.CommitAsync();
-		}
-
 		public static async Task<IEnumerable<GetProjectsQuery.Result>> GetProjectsAsync(this DbContextOptions<ReportContext> database)
 		{
 			await using var context = new ReportContext(database, new FakeClock());
@@ -53,7 +43,7 @@ namespace SpecStore.Test.Unit.Requests
 
 		public static IEnumerable<Action<GetProjectsQuery.Result>> Inspect(this IEnumerable<ProjectEntity> projects)
 		{
-			foreach (var project in projects.OrderBy(p => p.Key))
+			foreach (var project in projects.OrderBy(p => p.Key).ToList())
 			{
 				yield return r =>
 				{

@@ -9,6 +9,7 @@ namespace SpecStore.Test.Unit.Requests
 	[Trait("Feature", "MP - Managing Projects")]
 	public partial class ReportPerformerTest
 	{
+		[Trait("Feature", "MP - Managing Projects")]
 		[Theory(DisplayName = "[UNIT][UPR-001]: Project is not defined")]
 		[InlineData("")]
 		[InlineData(null)]
@@ -25,6 +26,7 @@ namespace SpecStore.Test.Unit.Requests
 			Assert.False(result.IsValid);
 		}
 
+		[Trait("Feature", "MP - Managing Projects")]
 		[Theory(DisplayName = "[UNIT][UPR-002]: Version is not defined")]
 		[InlineData("")]
 		[InlineData(null)]
@@ -41,6 +43,7 @@ namespace SpecStore.Test.Unit.Requests
 			Assert.False(result.IsValid);
 		}
 
+		[Trait("Feature", "MP - Managing Projects")]
 		[Fact(DisplayName = "[UNIT][UPR-003]: Upload Report")]
 		public async Task UploadReportCommand_PerformAsyn_UploadReport()
 		{
@@ -55,6 +58,7 @@ namespace SpecStore.Test.Unit.Requests
 			Assert.Collection(await _database.GetProjectsAsync(), p => p.Verify(command));
 		}
 
+		[Trait("Feature", "MP - Managing Projects")]
 		[Fact(DisplayName = "[UNIT][UPR-004]: Upload Report to Existing Project")]
 		public async Task UploadReportCommand_PerformAsyn_UploadReportToExistingProject()
 		{
@@ -69,6 +73,7 @@ namespace SpecStore.Test.Unit.Requests
 			await sut.PerformAsync(command, default);
 		}
 
+		[Trait("Feature", "MP - Managing Projects")]
 		[Fact(DisplayName = "[UNIT][UPR-005]: Upload Report to Existing Version")]
 		public async Task UploadReportCommand_PerformAsyn_UploadReportToExistingVersion()
 		{
