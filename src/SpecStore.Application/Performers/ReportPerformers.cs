@@ -1,6 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using SpecStore.Api;
 using SpecStore.Application.Contexts;
 using SpecStore.Application.Entities;
 using STrain;
@@ -16,10 +15,10 @@ namespace SpecStore.Application.Performers
 
 	{
 		private readonly ReportContext _context;
-		private readonly IEventPublisher _publisher;
+		private readonly IPublisher _publisher;
 		private readonly ILogger<ReportPerformers> _logger;
 
-		public ReportPerformers(ReportContext context, IEventPublisher publisher, ILogger<ReportPerformers> logger)
+		public ReportPerformers(ReportContext context, IPublisher publisher, ILogger<ReportPerformers> logger)
 		{
 			_context = context;
 			_publisher = publisher;

@@ -38,6 +38,4 @@ app.UseAuthorization();
 app.MapControllers();
 app.MapGenericRequestController();
 
-await app.InitializeAsync();
-
 await app.RunAsync();

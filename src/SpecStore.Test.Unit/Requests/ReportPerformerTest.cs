@@ -15,9 +15,9 @@ namespace SpecStore.Test.Unit.Requests
 	public partial class ReportPerformerTest : IDisposable
 	{
 		private readonly ILogger<ReportPerformers> _logger;
-		private DbContextOptions<ReportContext> _database;
-		private SqliteConnection _connection;
-		private Mock<IEventPublisher> _publisherMock;
+		private DbContextOptions<ReportContext> _database = null!;
+		private SqliteConnection _connection = null!;
+		private Mock<IPublisher> _publisherMock = null!;
 
 		public ReportPerformerTest(ITestOutputHelper outputHelper)
 		{
@@ -38,7 +38,7 @@ namespace SpecStore.Test.Unit.Requests
 			using var context = new ReportContext(_database, new FakeClock());
 			context.Database.EnsureCreated();
 
-			_publisherMock = new Mock<IEventPublisher>();
+			_publisherMock = new Mock<IPublisher>();
 
 			return new ReportPerformers(new ReportContext(_database, new FakeClock()), _publisherMock.Object, _logger);
 		}

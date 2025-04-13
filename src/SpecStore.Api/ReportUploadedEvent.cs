@@ -1,6 +1,6 @@
 ﻿using STrain;
 
-namespace SpecStore.Api
+namespace SpecStore
 {
 	public record ReportUploadedEvent : Event
 	{
