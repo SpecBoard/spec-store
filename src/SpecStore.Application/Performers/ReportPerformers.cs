@@ -46,7 +46,7 @@ namespace SpecStore.Application.Performers
 			_logger.LogTrace("Projects: {@Project}", projects);
 
 			_logger.LogInformation("Queried {ProjectCount} projects", projects.Count);
-			return [.. projects.Select(p => p.AsResult()).OrderBy(p => p.Key)];
+			return [.. projects.Select(p => p.AsResult()).OrderByDescending(p => p.LastReport)];
 		}
 
 		public async Task<GetProjectSummaryQuery.Result> PerformAsync(GetProjectSummaryQuery query, CancellationToken cancellationToken)
