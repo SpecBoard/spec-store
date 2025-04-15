@@ -8,8 +8,8 @@
 
   <ItemGroup>
     <PackageReference Include="FluentValidation" Version="11.11.0" />
-    <PackageReference Include="STrain.CQS.Api" Version="3.0.0-rc.2" />
-    <PackageReference Include="STrain.Eventing.Api" Version="3.0.0-rc.2" />
+    <PackageReference Include="STrain.CQS.Api" Version="3.0.0-rc.4" />
+    <PackageReference Include="STrain.Eventing.Api" Version="3.0.0-rc.4" />
   </ItemGroup>
 
 </Project>
