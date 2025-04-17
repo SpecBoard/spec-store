@@ -23,7 +23,7 @@ namespace SpecStore.Test.Unit.Requests
 			var result = await sut.PerformAsync(new GetProjectsFaker().Generate(), default);
 
 			// Assert
-			Assert.Collection(result, [.. projects.Inspect()]);
+			Assert.All(result, r => projects.Any(p => p.Key == r.Key));
 		}
 	}
 

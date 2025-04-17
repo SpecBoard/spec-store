@@ -151,16 +151,18 @@ namespace SpecStore.Application.Performers
 				await _context.Versions.AddAsync(version, cancellationToken).ConfigureAwait(false);
 			}
 
-			version.Reports.Add(new ReportEntity
+			var report = new ReportEntity
 			{
 				Metadata = command.Metadata.AsEntity(),
 				Features = command.Features.AsEntity()
-			});
+			};
+
+			version.Reports.Add(report);
 
 			await _context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 			await transaction.CommitAsync(cancellationToken).ConfigureAwait(false);
 
-			await _publisher.PublishAsync(new ReportUploadedEvent { Project = command.Project, Version = command.Version }, "specstore.report.uploaded", cancellationToken).ConfigureAwait(false);
+			await _publisher.PublishAsync(new ReportUploadedEvent { Project = command.Project, Version = command.Version, Status = report.GetStatus() }, "specstore.report.uploaded", cancellationToken).ConfigureAwait(false);
 			_logger.LogInformation("Report to '{Project}' project has been uploaded", command.Project);
 		}
 	}
@@ -256,5 +258,12 @@ namespace SpecStore.Application.Performers
 
 			return result;
 		}
+		public static Status GetStatus(this ReportEntity entity)
+		{
+			if (entity.Features.Any(f => f.FailCount > 0)) return Status.Fail;
+			if (entity.Features.Any(f => f.SkippedCount > 0)) return Status.Skipped;
+			return Status.Pass;
+		}
 	}
+
 }
