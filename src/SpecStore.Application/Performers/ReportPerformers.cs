@@ -4,6 +4,7 @@ using SpecStore.Application.Contexts;
 using SpecStore.Application.Entities;
 using STrain;
 using STrain.Core.Exceptions;
+using STrain.Eventing.Publishers;
 
 namespace SpecStore.Application.Performers
 {
@@ -14,11 +15,13 @@ namespace SpecStore.Application.Performers
 
 	{
 		private readonly ReportContext _context;
+		private readonly IPublisher _publisher;
 		private readonly ILogger<ReportPerformers> _logger;
 
-		public ReportPerformers(ReportContext context, ILogger<ReportPerformers> logger)
+		public ReportPerformers(ReportContext context, IPublisher publisher, ILogger<ReportPerformers> logger)
 		{
 			_context = context;
+			_publisher = publisher;
 			_logger = logger;
 		}
 
@@ -43,7 +46,7 @@ namespace SpecStore.Application.Performers
 			_logger.LogTrace("Projects: {@Project}", projects);
 
 			_logger.LogInformation("Queried {ProjectCount} projects", projects.Count);
-			return [.. projects.Select(p => p.AsResult()).OrderBy(p => p.Key)];
+			return [.. projects.Select(p => p.AsResult()).OrderByDescending(p => p.LastReport)];
 		}
 
 		public async Task<GetProjectSummaryQuery.Result> PerformAsync(GetProjectSummaryQuery query, CancellationToken cancellationToken)
@@ -148,15 +151,18 @@ namespace SpecStore.Application.Performers
 				await _context.Versions.AddAsync(version, cancellationToken).ConfigureAwait(false);
 			}
 
-			version.Reports.Add(new ReportEntity
+			var report = new ReportEntity
 			{
 				Metadata = command.Metadata.AsEntity(),
 				Features = command.Features.AsEntity()
-			});
+			};
+
+			version.Reports.Add(report);
 
 			await _context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 			await transaction.CommitAsync(cancellationToken).ConfigureAwait(false);
 
+			await _publisher.PublishAsync(new ReportUploadedEvent { Project = command.Project, Version = command.Version, Status = report.GetStatus() }, "specstore.report.uploaded", cancellationToken).ConfigureAwait(false);
 			_logger.LogInformation("Report to '{Project}' project has been uploaded", command.Project);
 		}
 	}
@@ -252,5 +258,12 @@ namespace SpecStore.Application.Performers
 
 			return result;
 		}
+		public static Status GetStatus(this ReportEntity entity)
+		{
+			if (entity.Features.Any(f => f.FailCount > 0)) return Status.Fail;
+			if (entity.Features.Any(f => f.SkippedCount > 0)) return Status.Skipped;
+			return Status.Pass;
+		}
 	}
+
 }

@@ -10,6 +10,7 @@ using STrain;
 using STrain.CQS.NetCore;
 using STrain.CQS.NetCore.Builders;
 using STrain.CQS.NetCore.LigtInject;
+using STrain.Eventing.RabbitMQ.NetCore.Extensions;
 
 namespace SpecStore.Wireup
 {
@@ -54,11 +55,14 @@ namespace SpecStore.Wireup
 			builder.Services.RemoveAll<IProblemDetailsWriter>();
 			builder.Services.AddExceptionHandler()
 				.UseDefaultWriters();
-		}
 
-		public static async Task InitializeAsync(this WebApplication application)
-		{
-			await application.Services.GetRequiredService<ReportContext>().Database.EnsureCreatedAsync();
+			builder.AddEventing(builder =>
+			{
+				builder.AddRouter(_ => "rabbitmq");
+
+				builder.AddRabbitMQ((options, configuration) => configuration.Bind("RabbitMQ", options))
+					.AddConnection().AddPublisher("rabbitmq", "RabbitMQ:Publisher");
+			});
 		}
 	}
 }
