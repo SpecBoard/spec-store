@@ -23,7 +23,7 @@ namespace SpecStore.Test.Unit.Requests
 			var result = await sut.PerformAsync(new GetProjectsFaker().Generate(), default);
 
 			// Assert
-			Assert.All(result, r => projects.Any(p => p.Key == r.Key));
+			Assert.All(result, r => Assert.True(projects.Any(p => p.Key == r.Key)));
 		}
 	}
 
@@ -51,6 +51,7 @@ namespace SpecStore.Test.Unit.Requests
 					var report = version.Reports.OrderBy(r => r.UploadedAt).Last();
 
 					Assert.Equal(r.Key, project.Key);
+					Assert.Equal(r.Name, project.Name);
 					Assert.Equal(r.Version, version.Version);
 					Assert.Equal(r.LastReport, version.Reports.Max(r => r.UploadedAt));
 					Assert.Equal(r.PassCount, report.Features.Sum(f => f.PassCount));

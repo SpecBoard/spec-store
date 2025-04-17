@@ -7,6 +7,7 @@ namespace SpecStore
 		public record Result
 		{
 			public required string Key { get; init; }
+			public string? Name { get; init; }
 			public required string Version { get; init; }
 			public DateTimeOffset LastReport { get; init; }
 			public int PassCount { get; init; }

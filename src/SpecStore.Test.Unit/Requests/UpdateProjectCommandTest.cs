@@ -9,6 +9,7 @@ namespace SpecStore.Test.Unit.Requests
 {
 	public partial class ReportPerformerTest
 	{
+		[Trait("Feature", "MP - Managing Projects")]
 		[Theory(DisplayName = "[UNIT][UPC-001]: Key is empty")]
 		[InlineData(null)]
 		[InlineData("")]
@@ -25,6 +26,7 @@ namespace SpecStore.Test.Unit.Requests
 			Assert.False(result.IsValid);
 		}
 
+		[Trait("Feature", "MP - Managing Projects")]
 		[Fact(DisplayName = "[UNIT][UPC-002]: Update Name")]
 		public async Task UpdateProjectCommand_ValidateAsync_UpdateName()
 		{
@@ -42,6 +44,7 @@ namespace SpecStore.Test.Unit.Requests
 			Assert.Equal(command.Name, (await context.Projects.FindAsync(command.Key))!.Name);
 		}
 
+		[Trait("Feature", "MP - Managing Projects")]
 		[Fact(DisplayName = "[UNIT][UPC-003]: Project does Not Found")]
 		public async Task UpdateProjectCommand_ValidateAsync_ProjectDoesNotFound()
 		{

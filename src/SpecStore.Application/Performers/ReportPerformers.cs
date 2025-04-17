@@ -83,6 +83,7 @@ namespace SpecStore.Application.Performers
 			var result = new GetProjectSummaryQuery.Result
 			{
 				Key = project.Key,
+				Name = project.Name,
 				Version = version.Version,
 				LastReport = report.UploadedAt,
 				Pass = report.Features.Sum(f => f.PassCount),
@@ -242,6 +243,7 @@ namespace SpecStore.Application.Performers
 			return new GetProjectsQuery.Result
 			{
 				Key = project.Key,
+				Name = project.Name,
 				Version = version.Version,
 				LastReport = report.UploadedAt,
 				PassCount = report.Features.Sum(f => f.PassCount),
