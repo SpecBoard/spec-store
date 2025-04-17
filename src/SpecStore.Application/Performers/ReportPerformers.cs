@@ -11,7 +11,8 @@ namespace SpecStore.Application.Performers
 	public class ReportPerformers : IQueryPerformer<GetProjectsQuery, IEnumerable<GetProjectsQuery.Result>>,
 		IQueryPerformer<GetProjectSummaryQuery, GetProjectSummaryQuery.Result>,
 		IQueryPerformer<GetProjectEvolutionQuery, IEnumerable<GetProjectEvolutionQuery.Result>>,
-		ICommandPerformer<UploadReportCommand>
+		ICommandPerformer<UploadReportCommand>,
+		ICommandPerformer<UpdateProjectCommand>
 
 	{
 		private readonly ReportContext _context;
@@ -115,14 +116,14 @@ namespace SpecStore.Application.Performers
 
 			_logger.LogInformation("Queried evolution of {Project} project", query.Key);
 
-			var result = reports.Select(r => new GetProjectEvolutionQuery.Result
+			var result = reports.ConvertAll(r => new GetProjectEvolutionQuery.Result
 			{
 				Id = r.Id,
 				Version = r.Version.Version,
 				Pass = r.Features.Sum(f => f.PassCount),
 				Fail = r.Features.Sum(f => f.FailCount),
 				Skipped = r.Features.Sum(f => f.SkippedCount)
-			}).ToList();
+			});
 
 			_logger.LogTrace("Result: {@Evolution}", result);
 
@@ -164,6 +165,19 @@ namespace SpecStore.Application.Performers
 
 			await _publisher.PublishAsync(new ReportUploadedEvent { Project = command.Project, Version = command.Version, Status = report.GetStatus() }, "specstore.report.uploaded", cancellationToken).ConfigureAwait(false);
 			_logger.LogInformation("Report to '{Project}' project has been uploaded", command.Project);
+		}
+
+		public async Task PerformAsync(UpdateProjectCommand command, CancellationToken cancellationToken)
+		{
+			await using var transaction = await _context.Database.BeginTransactionAsync(cancellationToken);
+			var project = await _context.Projects.FindAsync([command.Key], cancellationToken: cancellationToken);
+
+			if (project is null) throw new NotFoundException($"Project was not found with key: {command.Key}");
+
+			project.Name = command.Name;
+
+			await _context.SaveChangesAsync(cancellationToken);
+			await transaction.CommitAsync(cancellationToken);
 		}
 	}
 
