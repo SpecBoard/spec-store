@@ -43,6 +43,7 @@ namespace SpecStore.Wireup
 				builder.AddPerformer<IQueryPerformer<GetProjectsQuery, IEnumerable<GetProjectsQuery.Result>>, ReportPerformers>();
 				builder.AddPerformer<IQueryPerformer<GetProjectSummaryQuery, GetProjectSummaryQuery.Result>, ReportPerformers>();
 				builder.AddPerformer<IQueryPerformer<GetProjectEvolutionQuery, IEnumerable<GetProjectEvolutionQuery.Result>>, ReportPerformers>();
+				builder.AddPerformer<ICommandPerformer<UpdateProjectCommand>, ReportPerformers>();
 
 				builder.AddMvcRequestReceiver()
 					.UseLogger();
@@ -63,6 +64,13 @@ namespace SpecStore.Wireup
 				builder.AddRabbitMQ((options, configuration) => configuration.Bind("RabbitMQ", options))
 					.AddConnection().AddPublisher("rabbitmq", "RabbitMQ:Publisher");
 			});
+		}
+
+		public static async Task InitializeAsync(this WebApplication application)
+		{
+			var context = application.Services.GetRequiredService<ReportContext>();
+
+			await context.Database.EnsureCreatedAsync();
 		}
 	}
 }

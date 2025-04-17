@@ -9,9 +9,9 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.4" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="9.0.4" />
-    <PackageReference Include="STrain.Core" Version="3.0.0-rc.4" />
-    <PackageReference Include="STrain.CQS" Version="3.0.0-rc.4" />
-    <PackageReference Include="STrain.Eventing" Version="3.0.0-rc.4" />
+    <PackageReference Include="STrain.Core" Version="3.0.0-rc.6" />
+    <PackageReference Include="STrain.CQS" Version="3.0.0-rc.6" />
+    <PackageReference Include="STrain.Eventing" Version="3.0.0-rc.6" />
   </ItemGroup>
 
   <ItemGroup>
