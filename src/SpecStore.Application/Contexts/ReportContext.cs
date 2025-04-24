@@ -53,6 +53,8 @@ namespace SpecStore.Application.Contexts
 			builder.Property(e => e.Key)
 				.HasColumnName("key")
 				.IsRequired();
+			builder.Property(e => e.Name)
+				.HasColumnName("name");
 
 			builder.Property(e => e.UploadedAt)
 				.HasColumnName("uploaded_at")

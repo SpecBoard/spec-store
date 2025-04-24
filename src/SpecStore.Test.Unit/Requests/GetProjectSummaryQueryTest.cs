@@ -9,7 +9,7 @@ namespace SpecStore.Test.Unit.Requests
 	public partial class ReportPerformerTest
 	{
 		[Trait("Feature", "PS - Project Summary")]
-		[Theory(DisplayName = "[UNIT][PSQ-001] - Project Key is Empty")]
+		[Theory(DisplayName = "[UNIT][PSQ-001]: Project Key is Empty")]
 		[InlineData(null)]
 		[InlineData("")]
 		[InlineData("    ")]
@@ -26,7 +26,7 @@ namespace SpecStore.Test.Unit.Requests
 		}
 
 		[Trait("Feature", "PS - Project Summary")]
-		[Fact(DisplayName = "[UNIT][PSQ-002] - Get Project Summary")]
+		[Fact(DisplayName = "[UNIT][PSQ-002: Get Project Summary")]
 		public async Task GetProjectSummaryQuery_PerformAsync_GetProjectSummary()
 		{
 			// Arrange
@@ -43,6 +43,7 @@ namespace SpecStore.Test.Unit.Requests
 			var version = project.Versions.OrderBy(v => v.UploadedAt).Last();
 			var report = version.Reports.OrderBy(r => r.UploadedAt).Last();
 			Assert.Equal(project.Key, result.Key);
+			Assert.Equal(project.Name, result.Name);
 			Assert.Equal(version.Version, result.Version);
 			Assert.Equal(report.UploadedAt, result.LastReport);
 			Assert.Equal(report.Features.Sum(f => f.PassCount), result.Pass);
@@ -53,7 +54,7 @@ namespace SpecStore.Test.Unit.Requests
 		}
 
 		[Trait("Feature", "PS - Project Summary")]
-		[Fact(DisplayName = "[UNIT][PSQ-003] - Project is not found")]
+		[Fact(DisplayName = "[UNIT][PSQ-003]: Project is not found")]
 		public async Task GetProjectSummaryQuery_PerformAsync_ProjectIsNotFound()
 		{
 			// Arrange
