@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.13.35828.75 d17.13
+VisualStudioVersion = 17.13.35828.75
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpecStore.Api", "SpecStore.Api\SpecStore.Api.csproj", "{E1E8DCA6-5427-47D6-91FD-80652DC468D3}"
 EndProject
@@ -12,6 +12,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpecStore", "SpecStore\SpecStore.csproj", "{4D9A731B-763C-450E-97FB-B724A83C3033}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpecStore.Test.Unit", "SpecStore.Test.Unit\SpecStore.Test.Unit.csproj", "{D6F65F4B-A403-4601-B2F9-7B015F5786AD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpecStore.Client.Cucumber", "SpecStore.Client.Cucumber\SpecStore.Client.Cucumber.csproj", "{CD065031-8223-47F7-9CC6-3F9FC42BD52B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,6 +41,10 @@ Global
 		{D6F65F4B-A403-4601-B2F9-7B015F5786AD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D6F65F4B-A403-4601-B2F9-7B015F5786AD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D6F65F4B-A403-4601-B2F9-7B015F5786AD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CD065031-8223-47F7-9CC6-3F9FC42BD52B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CD065031-8223-47F7-9CC6-3F9FC42BD52B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CD065031-8223-47F7-9CC6-3F9FC42BD52B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CD065031-8223-47F7-9CC6-3F9FC42BD52B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

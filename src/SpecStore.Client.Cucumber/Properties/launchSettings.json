@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "SpecStore.Client.Cucumber": {
+      "commandName": "Project",
+      "commandLineArgs": "upload --working-directory f:\\specboard\\spec-board\\specs\\steps\\"
+    }
+  }
+}

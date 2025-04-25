@@ -28,6 +28,7 @@
   <ItemGroup>
     <ProjectReference Include="..\SpecStore.Api\SpecStore.Api.csproj" />
     <ProjectReference Include="..\SpecStore.Application\SpecStore.Application.csproj" />
+    <ProjectReference Include="..\SpecStore.Client.Cucumber\SpecStore.Client.Cucumber.csproj" />
   </ItemGroup>
 
   <ItemGroup>
