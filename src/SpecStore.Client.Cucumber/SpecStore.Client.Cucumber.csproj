@@ -9,10 +9,19 @@
 
   <ItemGroup>
     <PackageReference Include="Cucumber.Messages" Version="27.0.2" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.CommandLine" Version="9.0.5" />
+    <PackageReference Include="Serilog" Version="4.2.0" />
+    <PackageReference Include="Serilog.Sinks.Console" Version="6.0.0" />
+    <PackageReference Include="STrain.CQS.Extensions.DependencyInjection" Version="3.0.0-rc.6" />
+    <PackageReference Include="STrain.CQS.Http" Version="3.0.0-rc.6" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\SpecStore.Api\SpecStore.Api.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Clients\" />
   </ItemGroup>
 
 </Project>

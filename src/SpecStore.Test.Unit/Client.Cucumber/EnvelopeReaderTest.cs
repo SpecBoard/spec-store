@@ -35,6 +35,16 @@ namespace SpecStore.Test.Unit.Client.Cucumber
 				p => { Assert.Equal("OS_NAME", p.Key); Assert.Equal(meta.Os.Name, p.Value); },
 				p => { Assert.Equal("OS_VERSION", p.Key); Assert.Equal(meta.Os.Version, p.Value); },
 
+				p => { Assert.Equal("RUNTIME_NAME", p.Key); Assert.Equal(meta.Runtime.Name, p.Value); },
+				p => { Assert.Equal("RUNTIME_VERSION", p.Key); Assert.Equal(meta.Runtime.Version, p.Value); },
+
+				p => { Assert.Equal("CPU_NAME", p.Key); Assert.Equal(meta.Cpu.Name, p.Value); },
+
+				p => { Assert.Equal("IMPLEMENTATION_NAME", p.Key); Assert.Equal(meta.Implementation.Name, p.Value); },
+				p => { Assert.Equal("IMPLEMENTATION_VERSION", p.Key); Assert.Equal(meta.Implementation.Version, p.Value); },
+
+				p => { Assert.Equal("PROTOCOL_VERSION", p.Key); Assert.Equal(meta.ProtocolVersion, p.Value); },
+
 				p => { Assert.Equal("CI_NAME", p.Key); Assert.Equal(meta.Ci.Name, p.Value); },
 				p => { Assert.Equal("CI_BUILD_NUMBER", p.Key); Assert.Equal(meta.Ci.BuildNumber, p.Value); },
 				p => { Assert.Equal("CI_URL", p.Key); Assert.Equal(meta.Ci.Url, p.Value); },
@@ -44,16 +54,7 @@ namespace SpecStore.Test.Unit.Client.Cucumber
 				p => { Assert.Equal("GIT_REVISION", p.Key); Assert.Equal(meta.Ci.Git.Revision, p.Value); },
 				p => { Assert.Equal("GIT_TAG", p.Key); Assert.Equal(meta.Ci.Git.Tag, p.Value); },
 
-				p => { Assert.Equal("RUNTIME_NAME", p.Key); Assert.Equal(meta.Runtime.Name, p.Value); },
-				p => { Assert.Equal("RUNTIME_VERSION", p.Key); Assert.Equal(meta.Runtime.Version, p.Value); },
-
-				p => { Assert.Equal("CPU_NAME", p.Key); Assert.Equal(meta.Cpu.Name, p.Value); },
 				p => { Assert.Equal("CPU_VERSION", p.Key); Assert.Equal(meta.Cpu.Version, p.Value); },
-
-				p => { Assert.Equal("IMPLEMENTATION_NAME", p.Key); Assert.Equal(meta.Implementation.Name, p.Value); },
-				p => { Assert.Equal("IMPLEMENTATION_VERSION", p.Key); Assert.Equal(meta.Implementation.Version, p.Value); },
-
-				p => { Assert.Equal("PROTOCOL_VERSION", p.Key); Assert.Equal(meta.ProtocolVersion, p.Value); },
 				];
 		}
 	}

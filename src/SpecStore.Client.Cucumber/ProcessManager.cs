@@ -1,20 +1,25 @@
-﻿using SpecStore.Client.Cucumber.Commands;
-using SpecStore.Client.Cucumber.Readers;
-using SpecStore.Client.Cucumber.Serializers;
-using SpecStore.Client.Cucumber.Shells;
+﻿using Microsoft.Extensions.DependencyInjection;
+using SpecStore.Client.Cucumber.Commands;
 
 namespace SpecStore.Client.Cucumber
 {
-	internal class ProcessManager
+	public class ProcessManager
 	{
 		private const string UPLOAD = "upload";
+
+		private readonly IServiceProvider _provider;
+
+		public ProcessManager(IServiceProvider provider)
+		{
+			_provider = provider;
+		}
 
 		public async Task ExecuteAsync(params object[] args)
 		{
 			switch (args[0])
 			{
 				case UPLOAD:
-					await new UploadCommand(new Powershell(), new MessageSerializer(), new EnvelopeReader()).ExecuteAsync(args.GetWorkingDirectory(), default);
+					await _provider.GetRequiredService<UploadCommand>().ExecuteAsync(args.GetWorkingDirectory(), default);
 					break;
 				default:
 					throw new InvalidOperationException($"Unkown command: {args[0]}");
